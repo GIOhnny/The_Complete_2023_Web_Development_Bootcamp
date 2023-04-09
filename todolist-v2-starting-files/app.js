@@ -26,7 +26,13 @@ const itemsSchema = new mongoose.Schema({
   name: String  
 });
 
+const listSchema = new mongoose.Schema({
+  name: String,
+  items: [itemsSchema]
+});
+
 const Item = mongoose.model('item', itemsSchema);
+const List = mongoose.model('list', listSchema);
 
  const item1 = new Item ({
      name: "item1"
@@ -74,13 +80,23 @@ app.get("/", async function(req, res) {
 app.post("/", async function(req, res){
 
   const itemName = req.body.newItem;
+  const listName = req.body.list;
   
   const item = new Item({
     name: itemName
   });
   
-  item.save();
-  res.redirect("/");
+  if (listName === "Today") {
+    item.save();
+    res.redirect("/");
+  } else {
+    await List.findOne({ name: listName }).exec()
+    .then(async function (list) {
+      list.items.push(item);
+      await list.save();
+      res.redirect("/"+listName);
+    });
+  }
 });
 
 app.post("/delete", async function(req, res){
@@ -90,13 +106,33 @@ app.post("/delete", async function(req, res){
    res.redirect("/");
 });
 
-app.get("/work", function(req,res){
-  res.render("list", {listTitle: "Work List", newListItems: workItems});
+app.get('/:customListName', async function (req, res) {
+  const customListName = req.params.customListName;
+
+  await List.findOne({name: customListName}).exec()
+  .then (async function (list) {
+    //console.log("Then function " + list);
+    if (list === null )  {
+      const newlist = new List({
+        name: customListName,
+        items: defaultItems
+      });
+      await newlist.save();
+      res.redirect("/" + customListName);
+       } else {       
+        //console.log("exists");        
+        res.render("list",{listTitle: list.name, newListItems: list.items});
+       }
+  });
 });
 
-app.get("/about", function(req, res){
-  res.render("about");
-});
+// app.get("/work", function(req,res){
+//   res.render("list", {listTitle: "Work List", newListItems: workItems});
+// });
+
+// app.get("/about", function(req, res){
+//   res.render("about");
+// });
 
 app.listen(3000, function() {
   console.log("Server started on port 3000");
