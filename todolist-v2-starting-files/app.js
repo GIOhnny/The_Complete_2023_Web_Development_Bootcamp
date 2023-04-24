@@ -12,15 +12,35 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-const MongoDB_connection_string= "mongodb://127.0.0.1:27017/todolistDB";
-(async function connectToMongoDB() {
-  try {
-    await mongoose.connect(MongoDB_connection_string);    
-  }
-  catch (e) {
-    console.log('MongoDB database connection error: ' + e.message);
-  }
-})();
+//Config for local
+// const MongoDB_connection_string= "mongodb://127.0.0.1:27017/todolistDB";
+//  (async function connectToMongoDB() {
+//    try {
+//      await mongoose.connect(MongoDB_connection_string);    
+//    }
+//    catch (e) {
+//      console.log('MongoDB database connection error: ' + e.message);
+//    }
+//  })();
+
+
+//Config for Cloud
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://giohnny:NHxPeK0yqXDvsHux@cluster0.f2mfd6v.mongodb.net/todolistDB?retryWrites=true&w=majority";
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
+async function run() {
+    // Connect to the MongoDB cluster
+    try {
+      await mongoose.connect(uri);    
+    }
+    catch (e) {
+      console.log('MongoDB database connection error: ' + e.message);
+    } 
+
+}
+
+run().catch(console.dir);
 
 const itemsSchema = new mongoose.Schema({
   name: String  
