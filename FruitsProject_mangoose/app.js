@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-mongoose.connect("mongodb://127.0.0.1:27017/fruitsDB")
 
 const fruitSchema = new mongoose.Schema({
   name: {type: String, required: [true,"The fruit must have a name!" ]} ,
