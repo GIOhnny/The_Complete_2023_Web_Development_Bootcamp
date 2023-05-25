@@ -68,6 +68,50 @@ app.route("/articles")
 
     });
 
+app.route("/articles/:articleTitle")
+   .get(async function (req, res) {      
+      await Article.findOne({title: req.params.articleTitle})
+                   .exec()
+                   .then(article => {
+                         res.send(article);
+                   })
+                   .catch(err => {
+                     res.status(500);
+                     res.send(err.message);
+                     //console.log(err);
+                     //res.status(500).json({success: false})
+                   }); 
+     })
+    .put(async function(req,res) {
+      await Article.updateOne({title: req.params.articleTitle}, {title: req.body.title, content: req.body.content}, {overwite: true})
+      .then(() => {
+          res.send("Successefully updated!");
+          res.status(200);})          
+      .catch(err => {
+          res.status(500);
+          res.send(err.message);}); 
+    })
+    .patch(async function(req,res) {
+      await Article.updateOne({title: req.params.articleTitle}, {$set: req.body})
+      .then(() => {
+          res.send("Successefully patched!");
+          res.status(200);})          
+      .catch(err => {
+          res.status(500);
+          res.send(err.message);}); 
+    })
+    .delete(async function (req, res) {      
+      await Article.deleteOne({title: req.params.articleTitle})
+                   .exec()
+                   .then(() => {
+                         res.send("Article deleted!");
+                   })
+                   .catch(err => {
+                     res.status(500);
+                     res.send(err.message);
+                   }); 
+     });
+
 app.listen(3000, function() {
   console.log("Server started on port 3000");
 });
