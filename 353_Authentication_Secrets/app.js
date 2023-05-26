@@ -1,8 +1,10 @@
+require('dotenv').config();
 //jshint esversion:6
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require('mongoose');
+const encrypt = require('mongoose-encryption');
 
 const app = express();
 
@@ -15,13 +17,14 @@ app.set('view engine', 'ejs');
 //MongoDB connection
 mongoose.connect("mongodb://127.0.0.1:27017/userDB")
 
-const userSchema = {
+const userSchema = new mongoose.Schema({
     email: String,
     password: String
-}
+});
+
+userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ["password"]});
 
 const User = new mongoose.model("User", userSchema);
-
 
 app.get('/', (req, res) => {
     res.render('home');
@@ -40,10 +43,12 @@ app.post("/login", async (req, res) => {
                   .then(founduser => {
                     if (founduser.password === password) {
                         res.render("secrets");
+                    }else {
+                        res.send("Wrong password!");
                     }
                   })
                   .catch(err => {
-                    console.log(err);
+                    console.log(err);                   
                   }); 
 });
 
