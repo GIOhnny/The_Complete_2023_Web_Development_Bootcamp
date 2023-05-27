@@ -35,16 +35,13 @@ app.route("/articles")
                     res.send(err.message);
                     //console.log(err);
                     //res.status(500).json({success: false})
-                  }); 
-    
+                  });
     })
    .post(async function(req,res) {
-
       const newArticle = new Article({
         title: req.body.title,
         content: req.body.content
       });
-
      await newArticle.save()
               .catch(err => {
                 res.status(500);
