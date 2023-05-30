@@ -16,7 +16,7 @@ app.use(
   })
 );
 app.use(express.static("public"));
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 
 app.use(
   session({
@@ -89,6 +89,14 @@ app.get("/secrets", (req, res) => {
   } else {
     res.redirect("/login");
   }
+});
+
+app.get('/secrets', (req, res) => {
+    if (req.isAuthenticated()) {
+      res.render("secrets"); 
+    } else {
+      res.redirect('/login');  
+    }    
 });
 
 app.post("/register", async (req, res) => {
