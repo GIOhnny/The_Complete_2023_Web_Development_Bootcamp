@@ -46,15 +46,19 @@ const User = new mongoose.model("User", userSchema);
 passport.use(User.createStrategy());
 
 passport.serializeUser(function(user, done) {
+  console.log("User created "+ user.id);
   done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
+       console.log("deserialized user: " + id);
        User.findById(id).exec()
            .catch(err => {
             console.log(err);
            })
-           .then(done(null,User));
+           .then( user => {
+            done(null,user)}
+            );
          });
 
 passport.use(new GoogleStrategy({
@@ -120,21 +124,24 @@ app.post("/submit", function(req, res){
   const submittedSecret = req.body.secret;
 
 //Once the user is authenticated and their session gets saved, their user details are saved to req.user.
-  // console.log(req.user.id);
+console.log(submittedSecret); 
+console.log(req.user.id);
 
-  User.findById(req.user.id, function(err, foundUser){
-    if (err) {
-      console.log(err);
-    } else {
-      if (foundUser) {
+  User.findById(req.user.id)
+      .exec()
+      .catch(err => {
+        console.log(err)})
+      .then(foundUser => {
+        console.log(foundUser);
         foundUser.secret = submittedSecret;
-        foundUser.save(function(){
-          res.redirect("/secrets");
-        });
-      }
-    }
+        foundUser.save()
+                 .catch(err => {
+                  console.log(err);
+                 })
+                 .then(() => {
+                  res.redirect("/secrets");})        
+    });
   });
-});
 
 app.get("/logout", function(req, res){
   req.logout(function(err) {
